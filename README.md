@@ -1,5 +1,21 @@
 # netbox-docker
 
+Note: this is a fork of the upstream repo. Mostly it's for personal hacking.
+
+## Custom start
+
+The following script is a wrapper for the `build.sh`, it just sets a few
+variables aimed at producing a locally tagged image `ad_netbox:4.0.3-ad`.
+
+```bash
+./ad_custom_build.sh
+```
+
+The script uses a template for the Dockerfile `ad_netbox.Dockerfile.tmpl`, this
+file can be adapted to include any extra directories (plugins etc.) that you need
+or editors, debuggers, IDE daemons that you need for development workflows.
+
+
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/netbox-community/netbox-docker)][github-release]
 [![GitHub stars](https://img.shields.io/github/stars/netbox-community/netbox-docker)][github-stargazers]
 ![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed-raw/netbox-community/netbox-docker)
