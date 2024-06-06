@@ -11,6 +11,12 @@ umask 002
 # shellcheck disable=SC1091
 source /opt/netbox/venv/bin/activate
 
+# Conditional load of module with some helper functions
+if [ -f /opt/netbox/ad_common.sh ]; then
+    . /opt/netbox/ad_common.sh
+    install_plugins
+fi
+
 # Try to connect to the DB
 DB_WAIT_TIMEOUT=${DB_WAIT_TIMEOUT-3}
 MAX_DB_WAIT_TIME=${MAX_DB_WAIT_TIME-30}
