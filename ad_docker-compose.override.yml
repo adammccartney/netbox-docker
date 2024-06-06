@@ -1,0 +1,29 @@
+services:
+  netbox:
+    ports:
+    - 8000:8080
+#    environment:
+      #SKIP_SUPERUSER: "false"
+      ##SUPERUSER_API_TOKEN: ""
+      #SUPERUSER_EMAIL: ""
+      #SUPERUSER_NAME: admin
+      #SUPERUSER_PASSWORD: admin
+    volumes:
+      - ./netbox-plugin-demo:/opt/netbox-plugin-demo:rw
+      - ./docker/ad_common.sh:/opt/netbox/ad_common.sh
+      - ./docker/ad_docker-entrypoint.sh:/opt/netbox/docker-entrypoint.sh:z,ro
+  netbox-housekeeping:
+    volumes:
+      - ./netbox-plugin-demo:/opt/netbox-plugin-demo:rw
+      - ./docker/ad_common.sh:/opt/netbox/ad_common.sh
+      - ./docker/ad_housekeeping.sh:/opt/netbox/housekeeping.sh
+  netbox-worker:
+    command: []
+    entrypoint:
+      - /opt/netbox/ad_worker.docker-entrypoint.sh
+    volumes:
+      - ./docker/ad_worker.docker-entrypoint.sh:/opt/netbox/ad_worker.docker-entrypoint.sh
+      - ./netbox-plugin-demo:/opt/netbox-plugin-demo:rw
+      - ./docker/ad_common.sh:/opt/netbox/ad_common.sh
+
+

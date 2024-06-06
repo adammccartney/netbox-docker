@@ -2,18 +2,67 @@
 
 Note: this is a fork of the upstream repo. Mostly it's for personal hacking.
 
-## Custom start
+## Build a custom container
 
 The following script is a wrapper for the `build.sh`, it just sets a few
-variables aimed at producing a locally tagged image `ad_netbox:4.0.3-ad`.
+variables aimed at producing a locally tagged image `ad_netbox:4.0.3-ad1`.
 
 ```bash
 ./ad_custom_build.sh
 ```
 
+(Note that you may want to update this tag if you rebuild the image!)
+
 The script uses a template for the Dockerfile `ad_netbox.Dockerfile.tmpl`, this
 file can be adapted to include any extra directories (plugins etc.) that you need
 or editors, debuggers, IDE daemons that you need for development workflows.
+
+## Add a custom plugin
+
+To add a custom plugin you need to update at least two files:
+
+Whatever file you are using to override the docker compose file (in this case
+`ad_docker-compose.override.yml`), needs to contain volume mounts that contain 
+your plugin. You also need to overwrite the existing entrypoints.
+
+```yaml
+services:
+  netbox:
+    volumes:
+      - ./netbox-plugin-demo:/opt/netbox-plugin-demo:rw
+      - ./docker/ad_common.sh:/opt/netbox/ad_common.sh
+      - ./docker/ad_docker-entrypoint.sh:/opt/netbox/docker-entrypoint.sh:z,ro
+  netbox-housekeeping:
+    volumes:
+      - ./netbox-plugin-demo:/opt/netbox-plugin-demo:rw
+      - ./docker/ad_common.sh:/opt/netbox/ad_common.sh
+      - ./docker/ad_housekeeping.sh:/opt/netbox/housekeeping.sh
+  netbox-worker:
+    command: []
+    entrypoint:
+      - /opt/netbox/ad_worker.docker-entrypoint.sh
+    volumes:
+      - ./docker/ad_worker.docker-entrypoint.sh:/opt/netbox/ad_worker.docker-entrypoint.sh
+      - ./netbox-plugin-demo:/opt/netbox-plugin-demo:rw
+      - ./docker/ad_common.sh:/opt/netbox/ad_common.sh
+``` 
+
+The file `docker/ad_common.sh` defines a bash function that gets used by the 
+various entrypoints to install the relevant plugin. You need to append the 
+path to the plugin as it exists in the container. This is the path on the right 
+side of the volume mounts above.
+
+## Run using docker compose
+
+The docker compose setup has been ~~butchered to death~~ lovingly hacked in order 
+to facilitate installing a custom plugin into venv that resides in the netbox docker
+containers (note that there are actually three seperate services _netbox_, _worker_ and
+_housekeeping_) the environment is synced between the three containers.
+
+```bash
+docker compose -f docker-compose.yml -f ad_docker-compose.override.yml run
+```
+
 
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/netbox-community/netbox-docker)][github-release]
