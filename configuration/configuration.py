@@ -162,12 +162,12 @@ CORS_ORIGIN_REGEX_WHITELIST = [re.compile(r) for r in _environ_get_and_map('CORS
 # Set to True to enable server debugging. WARNING: Debugging introduces a substantial performance penalty and may reveal
 # sensitive information about your installation. Only enable debugging while performing testing.
 # Never enable debugging on a production system.
-DEBUG = _environ_get_and_map('DEBUG', 'False', _AS_BOOL)
+DEBUG = _environ_get_and_map('DEBUG', 'True', _AS_BOOL)
 
 # This parameter serves as a safeguard to prevent some potentially dangerous behavior,
 # such as generating new database schema migrations.
 # Set this to True only if you are actively developing the NetBox code base.
-DEVELOPER = _environ_get_and_map('DEVELOPER', 'False', _AS_BOOL)
+DEVELOPER = _environ_get_and_map('DEVELOPER', 'True', _AS_BOOL)
 
 # Email settings
 EMAIL = {
@@ -255,8 +255,10 @@ if 'PAGINATE_COUNT' in environ:
     PAGINATE_COUNT = _environ_get_and_map('PAGINATE_COUNT', None, _AS_INT)
 
 # # Enable installed plugins. Add the name of each plugin to the list.
+## NOTE: comment out the plugins if you want to build the container image!!!
 PLUGINS = [
-        'netbox_access_lists',
+    'netbox_access_lists',
+    #'netbox_wireguard',
 ]
 
 # # Plugins configuration settings. These settings are used by various plugins that the user may have installed.
@@ -339,3 +341,4 @@ SESSION_FILE_PATH = environ.get('SESSION_FILE_PATH', environ.get('SESSIONS_ROOT'
 # Time zone (default: UTC)
 TIME_ZONE = environ.get('TIME_ZONE', 'UTC')
 
+DJANGO_ADMIN_ENABLED = _environ_get_and_map('DJANGO_ADMIN_ENABLED', 'True', _AS_BOOL)

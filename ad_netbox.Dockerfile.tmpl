@@ -79,7 +79,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 
 COPY --from=builder /opt/netbox/venv /opt/netbox/venv
 # NOTE: don't do this in production, we're making the venv writeable for the group of the user who runs the container
-RUN chmod 0775 -R /opt/netbox/venv
+# This makes for a more comfortable (i.e. workable) development experience
+RUN chmod 0775 -R /opt/netbox 
 
 ARG NETBOX_PATH
 COPY ${NETBOX_PATH} /opt/netbox
