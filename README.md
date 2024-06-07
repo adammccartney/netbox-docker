@@ -63,6 +63,22 @@ _housekeeping_) the environment is synced between the three containers.
 docker compose -f docker-compose.yml -f ad_docker-compose.override.yml run
 ```
 
+## Use the helper functions! 
+
+A number of helper functions for carrying out typical development workflow tasks
+are defined in ad_helpers.sh. To use these functions, simply source the file.
+The functions are prefixed with `netbox_` so they should be available in your
+shell session after sourcing. The commands all assume that you want to interact
+with a running netbox docker container. By default, we assume that you want to
+use the container defined as part of the docker compose scripts in this repo
+(`netbox-docker-netbox-1`).
+
+For example, to do a dry run of the `makemigrations` command for the plugin `netbox_access_lists`, run:
+
+```sh
+. ad_helpers.sh
+netbox_makemigrations_plugin_dry_run netbox_access_lists
+```
 
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/netbox-community/netbox-docker)][github-release]
