@@ -1,32 +1,20 @@
 services:
   netbox:
+    image: netbox:latest-plugins
     ports:
     - 8000:8080
-#    environment:
-      #SKIP_SUPERUSER: "false"
-      ##SUPERUSER_API_TOKEN: ""
-      #SUPERUSER_EMAIL: ""
-      #SUPERUSER_NAME: admin
-      #SUPERUSER_PASSWORD: admin
-    volumes:
-      - ./netbox-plugin-demo:/opt/netbox-plugin-demo:rw
-#     - ./netbox-wireguard-plugin:/opt/netbox-wireguard-plugin
-      - ./docker/ad_common.sh:/opt/netbox/ad_common.sh
-      - ./docker/ad_docker-entrypoint.sh:/opt/netbox/docker-entrypoint.sh:z,ro
+    build:
+      context: .
+      dockerfile: Dockerfile-Plugins
   netbox-housekeeping:
-    volumes:
-      - ./netbox-plugin-demo:/opt/netbox-plugin-demo:rw
-#      - ./netbox-wireguard-plugin:/opt/netbox-wireguard-plugin
-      - ./docker/ad_common.sh:/opt/netbox/ad_common.sh
-      - ./docker/ad_housekeeping.sh:/opt/netbox/housekeeping.sh
+    image: netbox:latest-plugins
+    build:
+      context: .
+      dockerfile: Dockerfile-Plugins
   netbox-worker:
-    command: []
-    entrypoint:
-      - /opt/netbox/ad_worker.docker-entrypoint.sh
-    volumes:
-      - ./netbox-plugin-demo:/opt/netbox-plugin-demo:rw
-#      - ./netbox-wireguard-plugin:/opt/netbox-wireguard-plugin
-      - ./docker/ad_worker.docker-entrypoint.sh:/opt/netbox/ad_worker.docker-entrypoint.sh
-      - ./docker/ad_common.sh:/opt/netbox/ad_common.sh
+    image: netbox:latest-plugins
+    build:
+      context: .
+      dockerfile: Dockerfile-Plugins
 
 

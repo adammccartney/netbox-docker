@@ -2,71 +2,41 @@
 
 Note: this is a fork of the upstream repo. Mostly it's for personal hacking.
 
-## Build a custom container
+## Use the wiki!
 
-The following script is a wrapper for the `build.sh`, it just sets a few
-variables aimed at producing a locally tagged image `ad_netbox:4.0.3-ad1`.
+In general we want to use the workflow described in the wiki for installing
+netbox plugins in a docker container[^1].
 
-```bash
-./ad_custom_build.sh
+[^1]:https://github.com/netbox-community/netbox-docker/wiki/Using-Netbox-Plugins
+
+
+## Adapt the Dockerfile-Plugins for local repos
+
+If you are developing plugins locally, you might find it useful to adapt the
+dockerfile to copy the sources into the container and then install from file.
+
+Plugin requirements:
+```
+file:///opt/netbox/netbox-access-lists
+file:///opt/netbox/netbox-wireguard-plugin
 ```
 
-(Note that you may want to update this tag if you rebuild the image!)
-
-The script uses a template for the Dockerfile `ad_netbox.Dockerfile.tmpl`, this
-file can be adapted to include any extra directories (plugins etc.) that you need
-or editors, debuggers, IDE daemons that you need for development workflows.
-
-## Add a custom plugin
-
-To add a custom plugin you need to update at least two files:
-
-Whatever file you are using to override the docker compose file (in this case
-`ad_docker-compose.override.yml`), needs to contain volume mounts that contain 
-your plugin. You also need to overwrite the existing entrypoints.
-
-```yaml
-services:
-  netbox:
-    volumes:
-      - ./netbox-plugin-demo:/opt/netbox-plugin-demo:rw
-      - ./docker/ad_common.sh:/opt/netbox/ad_common.sh
-      - ./docker/ad_docker-entrypoint.sh:/opt/netbox/docker-entrypoint.sh:z,ro
-  netbox-housekeeping:
-    volumes:
-      - ./netbox-plugin-demo:/opt/netbox-plugin-demo:rw
-      - ./docker/ad_common.sh:/opt/netbox/ad_common.sh
-      - ./docker/ad_housekeeping.sh:/opt/netbox/housekeeping.sh
-  netbox-worker:
-    command: []
-    entrypoint:
-      - /opt/netbox/ad_worker.docker-entrypoint.sh
-    volumes:
-      - ./docker/ad_worker.docker-entrypoint.sh:/opt/netbox/ad_worker.docker-entrypoint.sh
-      - ./netbox-plugin-demo:/opt/netbox-plugin-demo:rw
-      - ./docker/ad_common.sh:/opt/netbox/ad_common.sh
-``` 
-
-The file `docker/ad_common.sh` defines a bash function that gets used by the 
-various entrypoints to install the relevant plugin. You need to append the 
-path to the plugin as it exists in the container. This is the path on the right 
-side of the volume mounts above.
-
-## Run using docker compose
-
-The docker compose setup has been ~~butchered to death~~ lovingly hacked in order 
-to facilitate installing a custom plugin into venv that resides in the netbox docker
-containers (note that there are actually three seperate services _netbox_, _worker_ and
-_housekeeping_) the environment is synced between the three containers.
-
-```bash
-docker compose -f docker-compose.yml -f ad_docker-compose.override.yml run
+```Dockerfile
+#...
+COPY ./plugin_requirements.txt /opt/netbox/
+COPY ./netbox-access-lists /opt/netbox/netbox-access-lists
+COPY ./netbox-wireguard-plugin /opt/netbox/netbox-wireguard-plugin
+RUN /opt/netbox/venv/bin/pip install --no-warn-script-location -r /opt/netbox/plugin_requirements.txt
+#...
 ```
 
 ## Use the helper functions! 
 
+Note, you probably don't need these, just develop the plugin and the
+rebuild & restart the container using the docker compose commands from the wiki.
+
 A number of helper functions for carrying out typical development workflow tasks
-are defined in ad_helpers.sh. To use these functions, simply source the file.
+are defined in `ad_helpers.sh`. To use these functions, simply source the file.
 The functions are prefixed with `netbox_` so they should be available in your
 shell session after sourcing. The commands all assume that you want to interact
 with a running netbox docker container. By default, we assume that you want to

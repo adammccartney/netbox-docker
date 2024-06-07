@@ -16,8 +16,7 @@
 # )
 
 ## Enable installed plugins. Add the name of each plugin to the list.
-from netbox.configuration.configuration import PLUGINS
-PLUGINS.append('netbox_access_lists')
+#from netbox.configuration.configuration import PLUGINS
 #PLUGINS.append('netbox_wireguard')
 
 

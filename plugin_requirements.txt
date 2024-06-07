@@ -1,0 +1,2 @@
+file:///opt/netbox/netbox-access-lists
+file:///opt/netbox/netbox-wireguard-plugin

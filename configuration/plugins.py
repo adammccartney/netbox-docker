@@ -4,7 +4,8 @@
 # To learn how to build images with your required plugins
 # See https://github.com/netbox-community/netbox-docker/wiki/Using-Netbox-Plugins
 
-# PLUGINS = ["netbox_bgp"]
+PLUGINS = ["netbox_access_lists",
+           "netbox_wireguard"]
 
 # PLUGINS_CONFIG = {
 #   "netbox_bgp": {
