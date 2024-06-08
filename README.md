@@ -5,7 +5,9 @@ Note: this is a fork of the upstream repo. Mostly it's for personal hacking.
 ## Use the wiki!
 
 In general we want to use the workflow described in the wiki for installing
-netbox plugins in a docker container[^1].
+netbox plugins in a docker container[^1]. In order to make the docker environment
+suitable for development, we only need to perform a few minor modifications to the
+setup described in the wiki.
 
 [^1]:https://github.com/netbox-community/netbox-docker/wiki/Using-Netbox-Plugins
 
@@ -14,11 +16,13 @@ netbox plugins in a docker container[^1].
 
 If you are developing plugins locally, you might find it useful to adapt the
 dockerfile to copy the sources into the container and then install from file.
+Note that we are installing the plugins in interactive mode.
 
 Plugin requirements:
+
 ```
-file:///opt/netbox/netbox-access-lists
-file:///opt/netbox/netbox-wireguard-plugin
+-e file:///opt/netbox/netbox-access-lists
+-e file:///opt/netbox/netbox-wireguard-plugin
 ```
 
 ```Dockerfile
@@ -28,6 +32,39 @@ COPY ./netbox-access-lists /opt/netbox/netbox-access-lists
 COPY ./netbox-wireguard-plugin /opt/netbox/netbox-wireguard-plugin
 RUN /opt/netbox/venv/bin/pip install --no-warn-script-location -r /opt/netbox/plugin_requirements.txt
 #...
+```
+## Edit the docker-compose.override.yml 
+
+Use the specific netbox version that we're targeting for our production deployment.
+The following lines need to be added to all three `netbox*` services in the docker-compose.override.yml:
+
+```yaml
+    image: netbox:v4.0.2
+    build:
+      context: .
+      dockerfile: Dockerfile-Plugins
+```
+
+In order to be able to save any database migrations that we make during
+development, we need to mount the plugin source directory (this is where the
+migrations will end up). It's actually mounted in three containers, so the following
+needs to be added to the docker compose file.
+
+```yaml
+services:
+  netbox:
+#...
+    volumes:
+      - ./netbox-access-lists:/opt/netbox/netbox-access-lists:rw
+  netbox-housekeeping:
+#...
+    volumes:
+      - ./netbox-access-lists:/opt/netbox/netbox-access-lists:rw
+  netbox-worker:
+#...
+    volumes:
+      - ./netbox-access-lists:/opt/netbox/netbox-access-lists:rw
+
 ```
 
 ## Use the helper functions! 
@@ -48,6 +85,14 @@ For example, to do a dry run of the `makemigrations` command for the plugin `net
 ```sh
 . ad_helpers.sh
 netbox_makemigrations_plugin_dry_run netbox_access_lists
+```
+
+As you create new views & templates, you might need to restart the django
+server. This can be done by restarting the docker compose services that run the 
+netbox server:
+
+```bash
+docker compose restart netbox
 ```
 
 
